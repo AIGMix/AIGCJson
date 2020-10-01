@@ -3,12 +3,12 @@
         {
             "type": "shell",
             "label": "C/C++: g++.exe build active file",
-            "command": "g++.exe",
+            "command": "g++",
             "args": [
                 "-g",
                 "${file}",
                 "-o",
-                "${workspaceFolder}\\test.exe",
+                "${workspaceFolder}\\test",
                 "-I${workspaceFolder}\\include",
                 "-std=c++11"
             ],

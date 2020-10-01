@@ -8,7 +8,7 @@
             "name": "g++.exe",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "program": "${workspaceFolder}\\test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

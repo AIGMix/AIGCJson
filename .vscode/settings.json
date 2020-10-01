@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "*.txt": "log",
+        "*.sh": "shellscript",
+        "*.ls": "lua",
+        "*.prl": "ini",
+        "*.pri": "ini",
+        "*log*": "log",
+        "*.cpp": "cpp",
+        "xstring": "cpp",
+        "mutex": "cpp"
+    }
+}
