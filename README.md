@@ -1,12 +1,12 @@
 # AIGCJson
-AIGCJson is a library with only header files, which can convert classes to json. 
+AIGCJson 是一个用于类|结构体与Json相互转换的工具，简单易用，支持多种数据类型，支持嵌套关系，只有头文件，方便使用与移植。
 
-## 📺 Use 
-1. Download the folder: include
-3. Add line `#include "AIGCJson.hpp"`
-4. Add `AIGC_JSON_HELPER(xxx,yyy,zzz)` in the class
+## 📺 使用方法
+1. 下载文件夹: include
+3. 在文件中添加包含 `#include "AIGCJson.hpp"`
+4. 在类|结构体中添加成员注册接口 `AIGC_JSON_HELPER(xxx,yyy,zzz)` 
    
-## 🤖 Example
+## 🤖 样例代码
 ```cpp
 #include "AIGCJson.hpp"
 using namespace std;
@@ -31,3 +31,14 @@ int main()
     return 0;
 }
 ```
+
+## 🍟 支持的成员类型
+- string
+- int\uint
+- int64\uint64
+- float
+- double
+- bool
+- vector<T>
+- list<T>
+- map<string,T>
