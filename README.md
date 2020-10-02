@@ -3,8 +3,9 @@ AIGCJson 是一个用于类 | 结构体与Json相互转换的工具，简单易�
 
 ## 🍟 功能
 1. [x] 支持多种数据类型，包括int\uint、int64\uint64、float、double、bool、string、list、vector、map<string,T>
-2. [x] 两行代码即可完成类 | 结构体与Json的相互转换
-3. [x] 支持成员重命名，比方说json中的关键字是name,成员命名可写成Name或其他  
+2. [x] 支持嵌套关系 
+3. [x] 两行代码即可完成类 | 结构体与Json的相互转换
+4. [x] 支持成员重命名，比方说json中的关键字是name,成员命名可写成Name或其他  
 
 ## 📺 使用方法
 1. 下载文件夹: include
