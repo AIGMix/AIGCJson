@@ -1,10 +1,15 @@
 # AIGCJson
-AIGCJson 是一个用于类|结构体与Json相互转换的工具，简单易用，支持多种数据类型，支持嵌套关系，只有头文件，方便使用与移植。
+AIGCJson 是一个用于类 | 结构体与Json相互转换的工具，简单易用，支持多种数据类型，支持嵌套关系，只有头文件，方便使用与移植。
+
+## 🍟 功能
+1. [x] 支持多种数据类型，包括int\uint、int64\uint64、float、double、bool、string、list、vector、map<string,T>
+2. [x] 两行代码即可完成类 | 结构体与Json的相互转换
+3. [x] 支持成员重命名，比方说json中的关键字是name,成员命名可写成Name或其他  
 
 ## 📺 使用方法
 1. 下载文件夹: include
 3. 在文件中添加包含 `#include "AIGCJson.hpp"`
-4. 在类|结构体中添加成员注册接口 `AIGC_JSON_HELPER(xxx,yyy,zzz)` 
+4. 在类 | 结构体中添加成员注册接口 `AIGC_JSON_HELPER(xxx,yyy,zzz)` 
    
 ## 🤖 样例代码
 ```cpp
@@ -18,13 +23,14 @@ public:
     string Name;
     int Age;
 
-    AIGC_JSON_HELPER(Name, Age)
+    AIGC_JSON_HELPER(Name, Age)//成员注册
+    AIGC_JSON_HELPER_RENAME("name","age")//成员重命名，不需要可以删除这条
 };
 
 int main()
 {
     Student person;
-    JsonHelper::JsonToObject(person, R"({"Name":"XiaoMing", "Age":15})");
+    JsonHelper::JsonToObject(person, R"({"name":"XiaoMing", "age":15})");
 
     string jsonStr;
     JsonHelper::ObjectToJson(person, jsonStr);
@@ -32,13 +38,3 @@ int main()
 }
 ```
 
-## 🍟 支持的成员类型
-- string
-- int\uint
-- int64\uint64
-- float
-- double
-- bool
-- vector<T>
-- list<T>
-- map<string,T>

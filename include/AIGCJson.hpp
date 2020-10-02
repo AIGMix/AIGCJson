@@ -30,17 +30,24 @@
 
 namespace aigc
 {
+#define AIGC_JSON_HELPER(...)                                                                                                                    \
+    bool AIGC_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue, std::vector<std::string> &names)                                                \
+    {                                                                                                                                            \
+        if (names.size() <= 0)                                                                                                                   \
+            names = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__);                                                                             \
+        return aigc::JsonHelper::WriteMembers(names, 0, jsonValue, __VA_ARGS__);                                                                 \
+    }                                                                                                                                            \
+    bool AIGC_CONVER_OBJECT_TO_JSON(rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, std::vector<std::string> &names) \
+    {                                                                                                                                            \
+        if (names.size() <= 0)                                                                                                                   \
+            names = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__);                                                                             \
+        return aigc::JsonHelper::ReadMembers(names, 0, jsonValue, allocator, __VA_ARGS__);                                                       \
+    }
 
-#define AIGC_JSON_HELPER(...)                                                                                   \
-    bool AIGC_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue)                                                \
-    {                                                                                                           \
-        std::vector<std::string> names = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__);                       \
-        return aigc::JsonHelper::WriteMembers(names, 0, jsonValue, __VA_ARGS__);                                \
-    }                                                                                                           \
-    bool AIGC_CONVER_OBJECT_TO_JSON(rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator) \
-    {                                                                                                           \
-        std::vector<std::string> names = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__);                       \
-        return aigc::JsonHelper::ReadMembers(names, 0, jsonValue, allocator, __VA_ARGS__);                      \
+#define AIGC_JSON_HELPER_RENAME(...)                            \
+    std::vector<std::string> AIGC_MEMBERS_RENAME()              \
+    {                                                           \
+        return aigc::JsonHelper::GetMembersNames(#__VA_ARGS__); \
     }
 
     class JsonHelper
@@ -296,18 +303,16 @@ namespace aigc
         template <typename T>
         struct HasConverFunction
         {
-            template <typename TT>
-            static char func(decltype(&TT::AIGC_CONVER_JSON_TO_OBJECT));
-            template <typename TT>
-            static int func(...);
-
+            template <typename TT> static char func(decltype(&TT::AIGC_CONVER_JSON_TO_OBJECT));
+            template <typename TT> static int func(...);
             const static bool has = (sizeof(func<T>(NULL)) == sizeof(char));
         };
 
         template <typename T, typename enable_if<HasConverFunction<T>::has, int>::type = 0>
         static inline bool JsonToObject(T &obj, rapidjson::Value &jsonValue)
         {
-            return obj.AIGC_CONVER_JSON_TO_OBJECT(jsonValue);
+            std::vector<std::string> names = LoadRenameArray(obj);
+            return obj.AIGC_CONVER_JSON_TO_OBJECT(jsonValue, names);
         }
 
         template <typename T, typename enable_if<!HasConverFunction<T>::has, int>::type = 0>
@@ -321,7 +326,8 @@ namespace aigc
         {
             if (jsonValue.IsNull())
                 jsonValue.SetObject();
-            return obj.AIGC_CONVER_OBJECT_TO_JSON(jsonValue, allocator);
+            std::vector<std::string> names = LoadRenameArray(obj);
+            return obj.AIGC_CONVER_OBJECT_TO_JSON(jsonValue, allocator, names);
         }
 
         template <typename T, typename enable_if<!HasConverFunction<T>::has, int>::type = 0>
@@ -330,9 +336,72 @@ namespace aigc
             return false;
         }
 
+        template <typename T>
+        struct HasRenameFunction
+        {
+            template <typename TT>
+            static char func(decltype(&TT::AIGC_MEMBERS_RENAME));
+            template <typename TT>
+            static int func(...);
+            const static bool has = (sizeof(func<T>(NULL)) == sizeof(char));
+        };
+
+        template <typename T, typename enable_if<HasRenameFunction<T>::has, int>::type = 0>
+        static inline std::vector<std::string> LoadRenameArray(T &obj)
+        {
+            return obj.AIGC_MEMBERS_RENAME();
+        }
+
+        template <typename T, typename enable_if<!HasRenameFunction<T>::has, int>::type = 0>
+        static inline std::vector<std::string> LoadRenameArray(T &obj)
+        {
+            return std::vector<std::string>();
+        }
+
+    private:
+        /**
+         * Tool
+         */
+        static std::vector<std::string> StringSplit(const std::string& str)
+        {
+            std::vector<std::string> array;
+            std::string::size_type pos1, pos2;
+            pos1 = 0;
+            pos2 = str.find(',');
+            while (std::string::npos != pos2)
+            {
+                array.push_back(str.substr(pos1, pos2 - pos1));
+                pos1 = pos2 + 1;
+                pos2 = str.find(',', pos1);
+            }
+            if (pos1 != str.length())
+                array.push_back(str.substr(pos1));
+
+            return array;
+        }
+
+        static void StringTrim(std::vector<std::string>& array)
+        {
+            for (int i = 0; i < array.size(); i++)
+            {
+                std::string newStr = array[i];
+                if (!newStr.empty())
+                {
+                    newStr.erase(0, newStr.find_first_not_of(" "));
+                    newStr.erase(newStr.find_last_not_of(" ") + 1);
+                }
+                if (!newStr.empty())
+                {
+                    newStr.erase(0, newStr.find_first_not_of("\""));
+                    newStr.erase(newStr.find_last_not_of("\"") + 1);
+                }
+                array[i] = newStr;
+            }
+        }
+        
     public:
         /**
-         * @brief conver json string to class\struct
+         * @brief conver json string to class | struct
          * @param obj : class or struct
          * @param jsonStr : json string 
          */
@@ -343,11 +412,12 @@ namespace aigc
             root.Parse(jsonStr.c_str());
             if (root.IsNull())
                 return false;
+
             return JsonToObject(obj, root);
         }
 
         /**
-         * @brief conver class\struct to json string
+         * @brief conver class | struct to json string
          * @param obj : class or struct
          * @param jsonStr : json string 
          */
@@ -370,29 +440,8 @@ namespace aigc
 
         static std::vector<std::string> GetMembersNames(const std::string membersStr)
         {
-            std::vector<std::string> array;
-            std::string::size_type pos1, pos2;
-            pos2 = membersStr.find(',');
-            pos1 = 0;
-            while (std::string::npos != pos2)
-            {
-                array.push_back(membersStr.substr(pos1, pos2 - pos1));
-                pos1 = pos2 + 1;
-                pos2 = membersStr.find(',', pos1);
-            }
-            if (pos1 != membersStr.length())
-                array.push_back(membersStr.substr(pos1));
-
-            for (int i = 0; i < array.size(); i++)
-            {
-                std::string newStr = array[i];
-                if (!newStr.empty())
-                {
-                    newStr.erase(0, newStr.find_first_not_of(" "));
-                    newStr.erase(newStr.find_last_not_of(" ") + 1);
-                }
-                array[i] = newStr;
-            }
+            std::vector<std::string> array = StringSplit(membersStr);
+            StringTrim(array);
             return array;
         }
 

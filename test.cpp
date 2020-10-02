@@ -9,15 +9,17 @@ public:
     int Age;
 
     AIGC_JSON_HELPER(Name, Age)
+    AIGC_JSON_HELPER_RENAME("name","age")
 };
 
 void Test1()
 {
     Student person;
-    JsonHelper::JsonToObject(person, R"({"Name":"XiaoMing", "Age":15})");
+    JsonHelper::JsonToObject(person, R"({"name":"XiaoMing", "age":15})");
 
     string jsonStr;
     JsonHelper::ObjectToJson(person, jsonStr);
+    return;
 }
 
 class Record
