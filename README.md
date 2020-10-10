@@ -1,4 +1,4 @@
-[ENGLISH](https://github.com/yaronzz/AIGCJson) | [中文文档](https://github.com/yaronzz/AIGCJson/README_CN.md)
+[ENGLISH](https://github.com/yaronzz/AIGCJson) | [中文文档](https://github.com/yaronzz/AIGCJson/blob/master/README_CN.md)
 
 # AIGCJson
 AIGCJson is a tool for converting between classes and Json，which supports multiple data types and nested relationship.Only header file.(Depend on[Tencent/rapidjson](https://github.com/Tencent/rapidjson)）

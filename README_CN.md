@@ -1,4 +1,4 @@
-[ENGLISH](https://github.com/yaronzz/AIGCJson) | [中文文档](https://github.com/yaronzz/AIGCJson/README_CN.md)
+[ENGLISH](https://github.com/yaronzz/AIGCJson) | [中文文档](https://github.com/yaronzz/AIGCJson/blob/master/README_CN.md)
 
 # AIGCJson
 AIGCJson 是一个用于类 | 结构体与Json相互转换的工具，简单易用，支持多种数据类型，支持嵌套关系，只有头文件，方便使用与移植。（基于[Tencent/rapidjson](https://github.com/Tencent/rapidjson)）
