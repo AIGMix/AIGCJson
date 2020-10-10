@@ -32,7 +32,7 @@ public:
     string sValue;
     bool bValue;
     char cValue;
-    vector<int> vValue;
+    list<int> vValue;
 
     AIGC_JSON_HELPER(iValue, uiValue, vValue);
 };
@@ -44,13 +44,6 @@ void Test2()
     JsonHelper::JsonToObject(person, R"({"iValue": 100, 
                                         "uiValue": 15,
                                         "vValue": [1,2,3,4,5]})");
-
-    int size = person.vValue.size();
-    for (int i = 0; i < size; i++)
-    {
-        cout << person.vValue[i] << endl;
-    }
-
     string jsonStr;
     JsonHelper::ObjectToJson(person, jsonStr);
     return;
@@ -76,11 +69,19 @@ public:
     AIGC_JSON_HELPER(TeacherName, Count, Leason);
 };
 
+class AllLeason
+{
+public:
+    int Count;
+    std::list<BaseLeason> Leasons;
+    AIGC_JSON_HELPER(Count, Leasons);
+};
+
 void Test3()
 {
     bool check;
     MathLeason person;
-    JsonHelper::JsonToObject(person, R"({"TeacherName": "XiaoHong", 
+    check = JsonHelper::JsonToObject(person, R"({"TeacherName": "XiaoHong", 
                                               "Count" : 15,
                                               "Leason": { 
                                                     "Type"     : 0,
@@ -88,8 +89,21 @@ void Test3()
                                                     "EndTime"  : "10:00"}})");
 
     string jsonStr;
-    JsonHelper::ObjectToJson(person, jsonStr);
+    check = JsonHelper::ObjectToJson(person, jsonStr);
     cout<< jsonStr <<endl;
+
+    AllLeason all;
+    check = JsonHelper::JsonToObject(all, R"({"Count" : 15,
+                                              "Leasons": [{ 
+                                                    "Type"     : 0,
+                                                    "StartTime": "8:00",
+                                                    "EndTime"  : "10:00"},
+                                                    { 
+                                                    "Type"     : 1,
+                                                    "StartTime": "8:00",
+                                                    "EndTime"  : "10:00"}
+                                                    ]})");
+
     return;
 }
 

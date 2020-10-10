@@ -251,10 +251,10 @@ namespace aigc
         static bool ObjectToJson(std::list<TYPE> &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             rapidjson::Value array(rapidjson::Type::kArrayType);
-            for (int i = 0; i < obj.size(); i++)
+            for (auto i = obj.begin(); i != obj.end(); i++)
             {
                 rapidjson::Value item;
-                if (!ObjectToJson(obj[i], item, allocator))
+                if (!ObjectToJson(*i, item, allocator))
                     return false;
 
                 array.PushBack(item, allocator);
