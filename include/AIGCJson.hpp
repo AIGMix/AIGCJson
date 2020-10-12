@@ -303,8 +303,10 @@ namespace aigc
         template <typename T>
         struct HasConverFunction
         {
-            template <typename TT> static char func(decltype(&TT::AIGC_CONVER_JSON_TO_OBJECT));
-            template <typename TT> static int func(...);
+            template <typename TT>
+            static char func(decltype(&TT::AIGC_CONVER_JSON_TO_OBJECT));
+            template <typename TT>
+            static int func(...);
             const static bool has = (sizeof(func<T>(NULL)) == sizeof(char));
         };
 
@@ -362,7 +364,7 @@ namespace aigc
         /**
          * Tool
          */
-        static std::vector<std::string> StringSplit(const std::string& str)
+        static std::vector<std::string> StringSplit(const std::string &str)
         {
             std::vector<std::string> array;
             std::string::size_type pos1, pos2;
@@ -380,7 +382,7 @@ namespace aigc
             return array;
         }
 
-        static void StringTrim(std::vector<std::string>& array)
+        static void StringTrim(std::vector<std::string> &array)
         {
             for (int i = 0; i < array.size(); i++)
             {
@@ -398,22 +400,42 @@ namespace aigc
                 array[i] = newStr;
             }
         }
-        
+
     public:
         /**
          * @brief conver json string to class | struct
-         * @param obj : class or struct
+         * @param obj : class or struct or base-types
          * @param jsonStr : json string 
+         * @param keys : obj-item keys
          */
         template <typename T>
-        static inline bool JsonToObject(T &obj, const std::string &jsonStr)
+        static inline bool JsonToObject(T &obj, const std::string &jsonStr, std::vector<std::string> keys = {})
         {
             rapidjson::Document root;
             root.Parse(jsonStr.c_str());
             if (root.IsNull())
                 return false;
 
-            return JsonToObject(obj, root);
+            rapidjson::Value value;
+            for (std::vector<std::string>::iterator it = keys.begin(); it != keys.end(); ++it)
+            {
+                const char *find = (*it).c_str();
+                if (value.IsNull())
+                {
+                    if (!root.HasMember(find))
+                        return false;
+                    value = root[find];
+                }
+                else if (!value.IsObject() || !value.HasMember(find))
+                    return false;
+                else
+                    value = value[find];
+            }
+
+            if (value.IsNull())
+                return JsonToObject(obj, root);
+            else
+                return JsonToObject(obj, value);
         }
 
         /**
@@ -457,6 +479,8 @@ namespace aigc
         static bool WriteMembers(std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, TYPE &arg)
         {
             const char *key = names[index].c_str();
+            if (!jsonValue.IsObject())
+                return false;
             if (!jsonValue.HasMember(key))
                 return true;
 

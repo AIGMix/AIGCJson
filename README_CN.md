@@ -32,10 +32,15 @@ public:
 
 int main()
 {
+    int age;
+    string jsonStr = R"({"name":"XiaoMing", "age":15})";
     Student person;
-    JsonHelper::JsonToObject(person, R"({"name":"XiaoMing", "age":15})");
 
-    string jsonStr;
+    JsonHelper::JsonToObject(person, R"({"name":"XiaoMing", "age":15})");
+    //按key获取json中的值或类
+    JsonHelper::JsonToObject(age, R"({"name":"XiaoMing", "age":15})", {"age"}); 
+    
+    jsonStr = "";
     JsonHelper::ObjectToJson(person, jsonStr);
     return 0;
 }

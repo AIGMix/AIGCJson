@@ -32,10 +32,15 @@ public:
 
 int main()
 {
+    int age;
+    string jsonStr = R"({"name":"XiaoMing", "age":15})";
     Student person;
-    JsonHelper::JsonToObject(person, R"({"name":"XiaoMing", "age":15})");
 
-    string jsonStr;
+    JsonHelper::JsonToObject(person, R"({"name":"XiaoMing", "age":15})");
+    //get base-type or class from json string by keys
+    JsonHelper::JsonToObject(age, R"({"name":"XiaoMing", "age":15})", {"age"});
+    
+    jsonStr = "";
     JsonHelper::ObjectToJson(person, jsonStr);
     return 0;
 }

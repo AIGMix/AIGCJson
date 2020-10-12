@@ -80,17 +80,17 @@ public:
 void Test3()
 {
     bool check;
-    MathLeason person;
-    check = JsonHelper::JsonToObject(person, R"({"TeacherName": "XiaoHong", 
+    string testjson = R"({"TeacherName": "XiaoHong", 
                                               "Count" : 15,
                                               "Leason": { 
                                                     "Type"     : 0,
                                                     "StartTime": "8:00",
-                                                    "EndTime"  : "10:00"}})");
+                                                    "EndTime"  : "10:00"}})";
+    MathLeason person;
+    check = JsonHelper::JsonToObject(person, testjson);
 
-    string jsonStr;
-    check = JsonHelper::ObjectToJson(person, jsonStr);
-    cout<< jsonStr <<endl;
+    BaseLeason baseLeason;
+    check = JsonHelper::JsonToObject(baseLeason, testjson, {"Leason"});
 
     AllLeason all;
     check = JsonHelper::JsonToObject(all, R"({"Count" : 15,
