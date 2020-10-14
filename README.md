@@ -1,7 +1,7 @@
 [ENGLISH](https://github.com/yaronzz/AIGCJson) | [中文文档](https://github.com/yaronzz/AIGCJson/blob/master/README_CN.md)
 
 # AIGCJson
-AIGCJson is a tool for converting between classes and Json，which supports multiple data types and nested relationship.Only header file.(Depend on[Tencent/rapidjson](https://github.com/Tencent/rapidjson)）
+[AIGCJson](https://github.com/yaronzz/AIGCJson) is a tool for converting between classes and Json，which supports multiple data types and nested relationship.Only header file.(Depend on[Tencent/rapidjson](https://github.com/Tencent/rapidjson)）
 
 ## 🍟 Support
 1. [x] Supports multiple data types, include int\uint、int64\uint64、float、double、bool、string、list、vector、map<string,T>
@@ -51,7 +51,7 @@ more example:[test.cpp](https://github.com/yaronzz/AIGCJson/blob/master/test.cpp
 
 ### **Debug**
 1. Downlad and install [VSCode](https://code.visualstudio.com/)、[MinGW](http://www.mingw.org/)
-2. Download this repository and open by vscode
+2. Download [this repository](https://github.com/yaronzz/AIGCJson) and open by vscode
 3. Select debug option: “windows g++” (“linux g++" if in linux)
 4. Open `test.cpp` and press F5
 

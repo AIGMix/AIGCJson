@@ -1,7 +1,7 @@
 [ENGLISH](https://github.com/yaronzz/AIGCJson) | [中文文档](https://github.com/yaronzz/AIGCJson/blob/master/README_CN.md)
 
 # AIGCJson
-AIGCJson 是一个用于类 | 结构体与Json相互转换的工具，简单易用，支持多种数据类型，支持嵌套关系，只有头文件，方便使用与移植。（基于[Tencent/rapidjson](https://github.com/Tencent/rapidjson)）
+[AIGCJson](https://github.com/yaronzz/AIGCJson) 是一个用于类 | 结构体与Json相互转换的工具，简单易用，支持多种数据类型，支持嵌套关系，只有头文件，方便使用与移植。（基于[Tencent/rapidjson](https://github.com/Tencent/rapidjson)）
 
 ## 🍟 功能
 1. [x] 支持多种数据类型，包括int\uint、int64\uint64、float、double、bool、string、list、vector、map<string,T>
@@ -51,7 +51,7 @@ int main()
 
 ### **调试**
 1. 下载安装[VSCode](https://code.visualstudio.com/)、[MinGW](http://www.mingw.org/)
-2. 下载本项目并用VSCode打开
+2. 下载[本项目](https://github.com/yaronzz/AIGCJson)并用VSCode打开
 3. 调试选项选择“windows g++”,如果是Linux系统，则选择“linux g++"
 4. 打开`test.cpp`,按F5即可调试样例代码
 
