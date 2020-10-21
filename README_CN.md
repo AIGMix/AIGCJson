@@ -45,7 +45,7 @@ int main()
     return 0;
 }
 ```
-更多例子可以查看[test.cpp](https://github.com/yaronzz/AIGCJson/blob/master/test.cpp)
+更多例子可以查看[test](https://github.com/yaronzz/AIGCJson/blob/master/test/)
 
 ## 💻 调试与扩展
 

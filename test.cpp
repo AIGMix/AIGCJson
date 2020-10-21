@@ -2,115 +2,38 @@
 using namespace std;
 using namespace aigc;
 
-class Student
+class Popole 
 {
 public:
-    string Name;
-    int Age;
+    string name;
+    int age;
 
-    AIGC_JSON_HELPER(Name, Age)
-    AIGC_JSON_HELPER_RENAME("name","age")
+    AIGC_JSON_HELPER(name, age) //成员注册
 };
-
-void Test1()
-{
-    Student person;
-    JsonHelper::JsonToObject(person, R"({"name":"XiaoMing", "age":15})");
-
-    string jsonStr;
-    JsonHelper::ObjectToJson(person, jsonStr);
-    return;
-}
-
-class Record
+class Student : Popole
 {
 public:
-    int iValue;
-    unsigned int uiValue;
-    float fValue;
-    double dValue;
-    string sValue;
-    bool bValue;
-    char cValue;
-    list<int> vValue;
-
-    AIGC_JSON_HELPER(iValue, uiValue, vValue);
+    string depart;
+    int grade;
+    AIGC_JSON_HELPER(depart, grade) //成员注册
+    AIGC_JSON_HELPER_BASE((Popole*)this) //基类注册
 };
-
-void Test2()
-{
-    bool check;
-    Record person;
-    JsonHelper::JsonToObject(person, R"({"iValue": 100, 
-                                        "uiValue": 15,
-                                        "vValue": [1,2,3,4,5]})");
-    string jsonStr;
-    JsonHelper::ObjectToJson(person, jsonStr);
-    return;
-}
-
-class BaseLeason
+class Class 
 {
 public:
-    int Type;
-    string StartTime;
-    string EndTime;
-
-    AIGC_JSON_HELPER(Type, StartTime, EndTime);
+    string name;
+    std::list<Student> students;
+    Popole master;
+    AIGC_JSON_HELPER(name, students, master) //成员注册
 };
 
-class MathLeason
-{
-public:
-    string TeacherName;
-    int Count;
-    BaseLeason Leason;
-
-    AIGC_JSON_HELPER(TeacherName, Count, Leason);
-};
-
-class AllLeason
-{
-public:
-    int Count;
-    std::list<BaseLeason> Leasons;
-    AIGC_JSON_HELPER(Count, Leasons);
-};
-
-void Test3()
-{
-    bool check;
-    string testjson = R"({"TeacherName": "XiaoHong", 
-                                              "Count" : 15,
-                                              "Leason": { 
-                                                    "Type"     : 0,
-                                                    "StartTime": "8:00",
-                                                    "EndTime"  : "10:00"}})";
-    MathLeason person;
-    check = JsonHelper::JsonToObject(person, testjson);
-
-    BaseLeason baseLeason;
-    check = JsonHelper::JsonToObject(baseLeason, testjson, {"Leason"});
-
-    AllLeason all;
-    check = JsonHelper::JsonToObject(all, R"({"Count" : 15,
-                                              "Leasons": [{ 
-                                                    "Type"     : 0,
-                                                    "StartTime": "8:00",
-                                                    "EndTime"  : "10:00"},
-                                                    { 
-                                                    "Type"     : 1,
-                                                    "StartTime": "8:00",
-                                                    "EndTime"  : "10:00"}
-                                                    ]})");
-
-    return;
-}
+string sjson = R"({
+    "name" : "小一班", "master" : {"name" : "刘老师", "age" : 35}, "students" : [ {"name" : "张小明", "age" : 5, "grade" : 3, "depart" : "小学"}, {"name" : "张小红", "age" : 7, "grade" : 3, "depart" : "小学"} ]
+})";
 
 int main()
 {
-    Test1();
-    Test2();
-    Test3();
+    Class my;
+    JsonHelper::JsonToObject(my, sjson);
     return 0;
 }

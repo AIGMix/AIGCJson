@@ -50,6 +50,20 @@ namespace aigc
         return aigc::JsonHelper::GetMembersNames(#__VA_ARGS__); \
     }
 
+#define AIGC_JSON_HELPER_BASE(...)                                                                                   \
+    bool AIGC_BASE_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue)                                                \
+    {                                                                                                                \
+        rapidjson::StringBuffer buffer;                                                                              \
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);                                                   \
+        jsonValue.Accept(writer);                                                                                    \
+        std::string jsonStr = std::string(buffer.GetString());                                                       \
+        return aigc::JsonHelper::WriteBase(jsonStr, __VA_ARGS__);                                                    \
+    }                                                                                                                \
+    bool AIGC_BASE_CONVER_OBJECT_TO_JSON(rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator) \
+    {                                                                                                                \
+        return aigc::JsonHelper::ReadBase(jsonValue, allocator, __VA_ARGS__);                                        \
+    }
+
     class JsonHelper
     {
     private:
@@ -300,6 +314,9 @@ namespace aigc
             typedef TYPE type;
         };
 
+        
+    private:
+        // AIGC_JSON_HELPER
         template <typename T>
         struct HasConverFunction
         {
@@ -312,7 +329,9 @@ namespace aigc
 
         template <typename T, typename enable_if<HasConverFunction<T>::has, int>::type = 0>
         static inline bool JsonToObject(T &obj, rapidjson::Value &jsonValue)
-        {
+        {   
+            if (!BaseConverJsonToObject(obj, jsonValue))
+                return false;
             std::vector<std::string> names = LoadRenameArray(obj);
             return obj.AIGC_CONVER_JSON_TO_OBJECT(jsonValue, names);
         }
@@ -328,6 +347,8 @@ namespace aigc
         {
             if (jsonValue.IsNull())
                 jsonValue.SetObject();
+            if (!BaseConverObjectToJson(obj, jsonValue, allocator))
+                return false;
             std::vector<std::string> names = LoadRenameArray(obj);
             return obj.AIGC_CONVER_OBJECT_TO_JSON(jsonValue, allocator, names);
         }
@@ -338,6 +359,8 @@ namespace aigc
             return false;
         }
 
+    private:
+        // AIGC_JSON_HELPER_RENAME
         template <typename T>
         struct HasRenameFunction
         {
@@ -358,6 +381,42 @@ namespace aigc
         static inline std::vector<std::string> LoadRenameArray(T &obj)
         {
             return std::vector<std::string>();
+        }
+
+    private:
+        // AIGC_JSON_HELPER_BASE
+        template <typename T>
+        struct HasBaseConverFunction
+        {
+            template <typename TT>
+            static char func(decltype(&TT::AIGC_BASE_CONVER_JSON_TO_OBJECT));
+            template <typename TT>
+            static int func(...);
+            const static bool has = (sizeof(func<T>(NULL)) == sizeof(char));
+        };
+
+        template <typename T, typename enable_if<HasBaseConverFunction<T>::has, int>::type = 0>
+        static inline bool BaseConverJsonToObject(T &obj, rapidjson::Value &jsonValue)
+        {
+            return obj.AIGC_BASE_CONVER_JSON_TO_OBJECT(jsonValue);
+        }
+
+        template <typename T, typename enable_if<!HasBaseConverFunction<T>::has, int>::type = 0>
+        static inline bool BaseConverJsonToObject(T &obj, rapidjson::Value &jsonValue)
+        {
+            return true;
+        }
+
+        template <typename T, typename enable_if<HasBaseConverFunction<T>::has, int>::type = 0>
+        static inline bool BaseConverObjectToJson(T &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        {
+            return obj.AIGC_BASE_CONVER_OBJECT_TO_JSON(jsonValue, allocator);
+        }
+
+        template <typename T, typename enable_if<!HasBaseConverFunction<T>::has, int>::type = 0>
+        static inline bool BaseConverObjectToJson(T &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        {
+            return true;
         }
 
     private:
@@ -504,10 +563,43 @@ namespace aigc
             if (!ObjectToJson(arg, item, allocator))
                 return false;
 
+            if (jsonValue.HasMember(names[index].c_str()))
+            {
+                jsonValue.RemoveMember(names[index].c_str());
+            }
+
             rapidjson::Value key;
             key.SetString(names[index].c_str(), names[index].length(), allocator);
             jsonValue.AddMember(key, item, allocator);
             return true;
+        }
+
+        template <typename TYPE, typename... TYPES>
+        static bool WriteBase(std::string& sjson, TYPE *arg, TYPES *... args)
+        {
+            if (!WriteBase(sjson, arg))
+                return false;
+            return WriteBase(sjson, args...);
+        }
+
+        template <typename TYPE>
+        static bool WriteBase(std::string& sjson, TYPE *arg)
+        {
+            return aigc::JsonHelper::JsonToObject(*arg, sjson);
+        }
+
+        template <typename TYPE, typename... TYPES>
+        static bool ReadBase(rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, TYPE *arg, TYPES *... args)
+        {
+            if (!ReadBase(jsonValue, allocator, arg))
+                return false;
+            return ReadBase(jsonValue, allocator, args...);
+        }
+
+        template <typename TYPE>
+        static bool ReadBase(rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, TYPE *arg)
+        {
+            return aigc::JsonHelper::ObjectToJson(*arg, jsonValue, allocator);
         }
     };
 } // namespace aigc

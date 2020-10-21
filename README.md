@@ -45,7 +45,7 @@ int main()
     return 0;
 }
 ```
-more example:[test.cpp](https://github.com/yaronzz/AIGCJson/blob/master/test.cpp)
+more example:[test](https://github.com/yaronzz/AIGCJson/blob/master/test/)
 
 ## 💻 Debug and Expand
 
