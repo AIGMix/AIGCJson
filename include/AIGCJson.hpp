@@ -211,49 +211,49 @@ namespace aigc
         /**
          * Conver Obj To String. 
          */
-        static bool ObjectToJson(int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(const int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetInt(obj);
             return true;
         }
 
-        static bool ObjectToJson(unsigned int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(const unsigned int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetUint(obj);
             return true;
         }
 
-        static bool ObjectToJson(int64_t &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(const int64_t &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetInt64(obj);
             return true;
         }
 
-        static bool ObjectToJson(uint64_t &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(const uint64_t &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetUint64(obj);
             return true;
         }
 
-        static bool ObjectToJson(bool &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(const bool &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetBool(obj);
             return true;
         }
 
-        static bool ObjectToJson(float &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(const float &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetFloat(obj);
             return true;
         }
 
-        static bool ObjectToJson(double &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(const double &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetDouble(obj);
             return true;
         }
 
-        static bool ObjectToJson(std::string &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(const std::string &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetString(obj.c_str(), obj.length(), allocator);
             return true;
@@ -572,7 +572,7 @@ namespace aigc
         }
 
         template <typename TYPE, typename... TYPES>
-        static bool WriteMembers(std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, TYPE &arg, TYPES &... args)
+        static bool WriteMembers(const std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, TYPE &arg, TYPES &... args)
         {
             if (!WriteMembers(names, index, jsonValue, arg))
                 return false;
@@ -580,7 +580,7 @@ namespace aigc
         }
 
         template <typename TYPE>
-        static bool WriteMembers(std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, TYPE &arg)
+        static bool WriteMembers(const std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, TYPE &arg)
         {
             const char *key = names[index].c_str();
             if (!jsonValue.IsObject())
@@ -594,7 +594,7 @@ namespace aigc
         }
 
         template <typename TYPE, typename... TYPES>
-        static bool ReadMembers(std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, TYPE &arg, TYPES &... args)
+        static bool ReadMembers(const std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, TYPE &arg, TYPES &... args)
         {
             if (!ReadMembers(names, index, jsonValue, allocator, arg))
                 return false;
@@ -602,7 +602,7 @@ namespace aigc
         }
 
         template <typename TYPE>
-        static bool ReadMembers(std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, TYPE &arg)
+        static bool ReadMembers(const std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, TYPE &arg)
         {
             rapidjson::Value item;
             if (!ObjectToJson(arg, item, allocator))
@@ -620,7 +620,7 @@ namespace aigc
         }
 
         template <typename TYPE, typename... TYPES>
-        static bool WriteBase(std::string &sjson, TYPE *arg, TYPES *... args)
+        static bool WriteBase(const std::string &sjson, TYPE *arg, TYPES *... args)
         {
             if (!WriteBase(sjson, arg))
                 return false;
@@ -628,7 +628,7 @@ namespace aigc
         }
 
         template <typename TYPE>
-        static bool WriteBase(std::string &sjson, TYPE *arg)
+        static bool WriteBase(const std::string &sjson, TYPE *arg)
         {
             return aigc::JsonHelper::JsonToObject(*arg, sjson);
         }
