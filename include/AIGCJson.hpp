@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <typeinfo>
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
@@ -30,6 +31,17 @@
 
 namespace aigc
 {
+
+/******************************************************
+ * Register class or struct members
+ * eg:
+ * struct Test
+ * {
+ *      string A;
+ *      string B;
+ *      AIGC_JSON_HELPER(A, B)
+ * };         
+ ******************************************************/
 #define AIGC_JSON_HELPER(...)                                                                                                                    \
     bool AIGC_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue, std::vector<std::string> &names)                                                \
     {                                                                                                                                            \
@@ -48,12 +60,39 @@ namespace aigc
         return aigc::JsonHelper::ReadMembers(names, 0, jsonValue, allocator, __VA_ARGS__);                                                       \
     }
 
+/******************************************************
+ * Rename members
+ * eg:
+ * struct Test
+ * {
+ *      string A;
+ *      string B;
+ *      AIGC_JSON_HELPER(A, B)
+ *      AIGC_JSON_HELPER_RENAME("a", "b")
+ * };         
+ ******************************************************/
 #define AIGC_JSON_HELPER_RENAME(...)                            \
     std::vector<std::string> AIGC_MEMBERS_RENAME()              \
     {                                                           \
         return aigc::JsonHelper::GetMembersNames(#__VA_ARGS__); \
     }
 
+/******************************************************
+ * Register base-class
+ * eg:
+ * struct Base
+ * {
+ *      string name;
+ *      AIGC_JSON_HELPER(name)
+ * };  
+ * struct Test : Base
+ * {
+ *      string A;
+ *      string B;
+ *      AIGC_JSON_HELPER(A, B)
+ *      AIGC_JSON_HELPER_BASE((Base*)this)
+ * };         
+ ******************************************************/
 #define AIGC_JSON_HELPER_BASE(...)                                                                                   \
     bool AIGC_BASE_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue)                                                \
     {                                                                                                                \
@@ -70,11 +109,14 @@ namespace aigc
 
     class JsonHelper
     {
+
     private:
-        /**
-         * Conver Json To Obj. Support Type: 
-         *          int、uint、bool、float、double、string、vector、list
-         */
+        /******************************************************
+         * Conver base-type : Json string to base-type
+         * Contain: int\uint、int64_t\uint64_t、bool、float
+         *          double、string、vector、list、map<string,XX>
+         *          
+         ******************************************************/
         static bool JsonToObject(int &obj, rapidjson::Value &jsonValue)
         {
             if (jsonValue.IsNull() || !jsonValue.IsInt())
@@ -136,6 +178,7 @@ namespace aigc
             obj = "";
             if (jsonValue.IsNull())
                 return true;
+            //object or number conver to string
             else if (jsonValue.IsObject() || jsonValue.IsNumber())
             {
                 rapidjson::StringBuffer buffer;
@@ -208,9 +251,12 @@ namespace aigc
         }
 
     private:
-        /**
-         * Conver Obj To String. 
-         */
+        /******************************************************
+         * Conver base-type : base-type to json string
+         * Contain: int\uint、int64_t\uint64_t、bool、float
+         *          double、string、vector、list、map<string,XX>
+         *          
+         ******************************************************/
         static bool ObjectToJson(const int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetInt(obj);
@@ -315,9 +361,11 @@ namespace aigc
         }
 
     private:
-        /**
-         * Check : Class Support Conver Json To Obj ?  
-         */
+        /******************************************************
+         * 
+         * enable_if
+         *          
+         ******************************************************/
         template <bool, class TYPE = void>
         struct enable_if
         {
@@ -330,7 +378,12 @@ namespace aigc
         };
 
     private:
-        // AIGC_JSON_HELPER
+        /******************************************************
+         * Check AIGC_JSON_HELPER
+         *      If class or struct add AIGC_JSON_HELPER,
+         *      it will go to the correct conver function.
+         * 
+         ******************************************************/
         template <typename T>
         struct HasConverFunction
         {
@@ -374,7 +427,12 @@ namespace aigc
         }
 
     private:
-        // AIGC_JSON_HELPER_RENAME
+        /******************************************************
+         * Check AIGC_JSON_HELPER_RENAME
+         *      If class or struct add AIGC_JSON_HELPER,
+         *      it will go to the correct load rename function.
+         * 
+         ******************************************************/
         template <typename T>
         struct HasRenameFunction
         {
@@ -398,7 +456,12 @@ namespace aigc
         }
 
     private:
-        // AIGC_JSON_HELPER_BASE
+        /******************************************************
+         * Check AIGC_JSON_HELPER_BASE
+         *      If class or struct add AIGC_JSON_HELPER,
+         *      it will go to the correct base conver function.
+         * 
+         ******************************************************/
         template <typename T>
         struct HasBaseConverFunction
         {
@@ -434,9 +497,13 @@ namespace aigc
         }
 
     private:
-        /**
-         * Tool
-         */
+        /******************************************************
+         * Common Tool Function, Contain:
+         * 1、String split
+         * 2、String Trim
+         * 3、Conver JsonValue to string
+         * 
+         ******************************************************/
         static std::vector<std::string> StringSplit(const std::string &str)
         {
             std::vector<std::string> array;
@@ -474,7 +541,53 @@ namespace aigc
             }
         }
 
+        static std::string StringFromJsonValue(rapidjson::Value &jsonValue)
+        {
+            rapidjson::StringBuffer buffer;
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+            jsonValue.Accept(writer);
+            std::string ret = std::string(buffer.GetString());
+            return ret;
+        }
+
+        static std::string GetJsonValueTypeName(rapidjson::Value &jsonValue)
+        {
+            rapidjson::Type type = jsonValue.GetType();
+            switch (type)
+            {
+            case rapidjson::Type::kArrayType:
+                return "array";
+            case rapidjson::Type::kFalseType:
+            case rapidjson::Type::kTrueType:
+                return "bool";
+            case rapidjson::Type::kObjectType:
+                return "object";
+            case rapidjson::Type::kStringType:
+                return "string";
+            case rapidjson::Type::kNumberType:
+                return "number";
+            default:
+                return "string";
+            }
+        }
+
     public:
+        /******************************************************
+         * External interface: 
+         * 
+         * a、Conver json string to class\struct:
+         *      1) T GetObject(string, bool*)
+         *      2) T GetObject(string, vector<string>, bool*)
+         *      3) bool JsonToObject(string, vector<string>)
+         * 
+         * b、Conver class\struct to json string:
+         *      1) string GetJson(T, bool*)
+         *      2) bool ObjectToJson(string, T)
+         * 
+         * c、Get last error message: GetLastErrMessage
+         * 
+         ******************************************************/
         template <typename T>
         static T GetObject(const std::string &jsonStr, bool *isSuccess = NULL)
         {
@@ -564,6 +677,14 @@ namespace aigc
         }
 
     public:
+        /******************************************************
+         * Cycle conversion:
+         *      1) write class\struct members from json value
+         *      2) read class\struct members to json value
+         *      3) write class\struct base-class
+         *      4) read class\struct base-class
+         * 
+         ******************************************************/
         static std::vector<std::string> GetMembersNames(const std::string membersStr)
         {
             std::vector<std::string> array = StringSplit(membersStr);
@@ -583,13 +704,20 @@ namespace aigc
         static bool WriteMembers(const std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, TYPE &arg)
         {
             const char *key = names[index].c_str();
+            if (jsonValue.IsNull())
+                return true;
             if (!jsonValue.IsObject())
                 return false;
             if (!jsonValue.HasMember(key))
                 return true;
 
             if (!JsonToObject(arg, jsonValue[key]))
+            {
+                std::string jsonType = GetJsonValueTypeName(jsonValue[key]);
+                std::string logstr = "[JsonHelper] Conver member failed. jsonValue-" + jsonType + " --> " + names[index];
+                std::cout << logstr << std::endl;
                 return false;
+            }
             return true;
         }
 
@@ -606,7 +734,9 @@ namespace aigc
         {
             rapidjson::Value item;
             if (!ObjectToJson(arg, item, allocator))
+            {
                 return false;
+            }
 
             if (jsonValue.HasMember(names[index].c_str()))
             {
@@ -646,5 +776,6 @@ namespace aigc
         {
             return aigc::JsonHelper::ObjectToJson(*arg, jsonValue, allocator);
         }
+
     };
 } // namespace aigc
