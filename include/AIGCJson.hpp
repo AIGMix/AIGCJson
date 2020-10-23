@@ -17,6 +17,7 @@
  * @note:   Support type -->> int、uint、int64、uint64、bool、float、double、string、vector、list、map<string,XX>
  * 
  */
+#pragma once
 
 #include <list>
 #include <map>
