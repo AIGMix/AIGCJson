@@ -33,8 +33,12 @@ namespace aigc
 #define AIGC_JSON_HELPER(...)                                                                                                                    \
     bool AIGC_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue, std::vector<std::string> &names)                                                \
     {                                                                                                                                            \
-        if (names.size() <= 0)                                                                                                                   \
-            names = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__);                                                                             \
+        std::vector<std::string> standardNames = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__);                                                \
+        if (names.size() <= standardNames.size())                                                                                                \
+        {                                                                                                                                        \
+            for (int i = names.size(); i < standardNames.size(); i++)                                                                            \
+                names.push_back(standardNames[i]);                                                                                               \
+        }                                                                                                                                        \
         return aigc::JsonHelper::WriteMembers(names, 0, jsonValue, __VA_ARGS__);                                                                 \
     }                                                                                                                                            \
     bool AIGC_CONVER_OBJECT_TO_JSON(rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, std::vector<std::string> &names) \
@@ -129,9 +133,20 @@ namespace aigc
 
         static bool JsonToObject(std::string &obj, rapidjson::Value &jsonValue)
         {
-            if (jsonValue.IsNull() || !jsonValue.IsString())
+            obj = "";
+            if (jsonValue.IsNull())
+                return true;
+            else if (jsonValue.IsObject() || jsonValue.IsNumber())
+            {
+                rapidjson::StringBuffer buffer;
+                rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+                jsonValue.Accept(writer);
+                obj = std::string(buffer.GetString());
+            }
+            else if (!jsonValue.IsString())
                 return false;
-            obj = jsonValue.GetString();
+            else
+                obj = jsonValue.GetString();
             return true;
         }
 
@@ -314,7 +329,6 @@ namespace aigc
             typedef TYPE type;
         };
 
-        
     private:
         // AIGC_JSON_HELPER
         template <typename T>
@@ -329,7 +343,7 @@ namespace aigc
 
         template <typename T, typename enable_if<HasConverFunction<T>::has, int>::type = 0>
         static inline bool JsonToObject(T &obj, rapidjson::Value &jsonValue)
-        {   
+        {
             if (!BaseConverJsonToObject(obj, jsonValue))
                 return false;
             std::vector<std::string> names = LoadRenameArray(obj);
@@ -461,6 +475,26 @@ namespace aigc
         }
 
     public:
+        template <typename T>
+        static T GetObject(const std::string &jsonStr, bool *isSuccess = NULL)
+        {
+            T obj;
+            bool check = JsonToObject(obj, jsonStr, {});
+            if (isSuccess)
+                *isSuccess = check;
+            return obj;
+        }
+
+        template <typename T>
+        static T GetObject(const std::string &jsonStr, std::vector<std::string> keys, bool *isSuccess = NULL)
+        {
+            T obj;
+            bool check = JsonToObject(obj, jsonStr, keys);
+            if (isSuccess)
+                *isSuccess = check;
+            return obj;
+        }
+
         /**
          * @brief conver json string to class | struct
          * @param obj : class or struct or base-types
@@ -497,6 +531,16 @@ namespace aigc
                 return JsonToObject(obj, value);
         }
 
+        template <typename T>
+        static std::string GetJson(T &obj, bool *isSuccess)
+        {
+            std::string ret = "";
+            bool check = ObjectToJson(obj, ret);
+            if (isSuccess)
+                *isSuccess = check;
+            return ret;
+        }
+
         /**
          * @brief conver class | struct to json string
          * @param obj : class or struct
@@ -519,6 +563,7 @@ namespace aigc
             return true;
         }
 
+    public:
         static std::vector<std::string> GetMembersNames(const std::string membersStr)
         {
             std::vector<std::string> array = StringSplit(membersStr);
@@ -575,7 +620,7 @@ namespace aigc
         }
 
         template <typename TYPE, typename... TYPES>
-        static bool WriteBase(std::string& sjson, TYPE *arg, TYPES *... args)
+        static bool WriteBase(std::string &sjson, TYPE *arg, TYPES *... args)
         {
             if (!WriteBase(sjson, arg))
                 return false;
@@ -583,7 +628,7 @@ namespace aigc
         }
 
         template <typename TYPE>
-        static bool WriteBase(std::string& sjson, TYPE *arg)
+        static bool WriteBase(std::string &sjson, TYPE *arg)
         {
             return aigc::JsonHelper::JsonToObject(*arg, sjson);
         }

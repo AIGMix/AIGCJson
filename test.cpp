@@ -6,7 +6,7 @@ class Popole
 {
 public:
     string name;
-    int age;
+    string age;
 
     AIGC_JSON_HELPER(name, age) //成员注册
 };
@@ -33,7 +33,6 @@ string sjson = R"({
 
 int main()
 {
-    Class my;
-    JsonHelper::JsonToObject(my, sjson);
+    Class my = JsonHelper::GetObject<Class>(sjson);
     return 0;
 }
