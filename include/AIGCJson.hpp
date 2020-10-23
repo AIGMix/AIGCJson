@@ -29,6 +29,10 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
+// #ifndef JSONHELPER_DEBUG
+// #define JSONHELPER_DEBUG
+// #endif // !JSONHELPER_DEBUG
+
 namespace aigc
 {
 
@@ -42,22 +46,29 @@ namespace aigc
  *      AIGC_JSON_HELPER(A, B)
  * };         
  ******************************************************/
-#define AIGC_JSON_HELPER(...)                                                                                                                    \
-    bool AIGC_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue, std::vector<std::string> &names)                                                \
-    {                                                                                                                                            \
-        std::vector<std::string> standardNames = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__);                                                \
-        if (names.size() <= standardNames.size())                                                                                                \
-        {                                                                                                                                        \
-            for (int i = names.size(); i < standardNames.size(); i++)                                                                            \
-                names.push_back(standardNames[i]);                                                                                               \
-        }                                                                                                                                        \
-        return aigc::JsonHelper::WriteMembers(names, 0, jsonValue, __VA_ARGS__);                                                                 \
-    }                                                                                                                                            \
-    bool AIGC_CONVER_OBJECT_TO_JSON(rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, std::vector<std::string> &names) \
-    {                                                                                                                                            \
-        if (names.size() <= 0)                                                                                                                   \
-            names = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__);                                                                             \
-        return aigc::JsonHelper::ReadMembers(names, 0, jsonValue, allocator, __VA_ARGS__);                                                       \
+#define AIGC_JSON_HELPER(...)                                                                     \
+    bool AIGC_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue,                                  \
+                                    std::vector<std::string> &names)                              \
+    {                                                                                             \
+        std::vector<std::string> standardNames = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__); \
+        if (names.size() <= standardNames.size())                                                 \
+        {                                                                                         \
+            for (int i = names.size(); i < standardNames.size(); i++)                             \
+                names.push_back(standardNames[i]);                                                \
+        }                                                                                         \
+        return aigc::JsonHelper::WriteMembers(names, 0, jsonValue, __VA_ARGS__);                  \
+    }                                                                                             \
+    bool AIGC_CONVER_OBJECT_TO_JSON(rapidjson::Value &jsonValue,                                  \
+                                    rapidjson::Document::AllocatorType &allocator,                \
+                                    std::vector<std::string> &names)                              \
+    {                                                                                             \
+        std::vector<std::string> standardNames = aigc::JsonHelper::GetMembersNames(#__VA_ARGS__); \
+        if (names.size() <= standardNames.size())                                                 \
+        {                                                                                         \
+            for (int i = names.size(); i < standardNames.size(); i++)                             \
+                names.push_back(standardNames[i]);                                                \
+        }                                                                                         \
+        return aigc::JsonHelper::ReadMembers(names, 0, jsonValue, allocator, __VA_ARGS__);        \
     }
 
 /******************************************************
@@ -93,18 +104,16 @@ namespace aigc
  *      AIGC_JSON_HELPER_BASE((Base*)this)
  * };         
  ******************************************************/
-#define AIGC_JSON_HELPER_BASE(...)                                                                                   \
-    bool AIGC_BASE_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue)                                                \
-    {                                                                                                                \
-        rapidjson::StringBuffer buffer;                                                                              \
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);                                                   \
-        jsonValue.Accept(writer);                                                                                    \
-        std::string jsonStr = std::string(buffer.GetString());                                                       \
-        return aigc::JsonHelper::WriteBase(jsonStr, __VA_ARGS__);                                                    \
-    }                                                                                                                \
-    bool AIGC_BASE_CONVER_OBJECT_TO_JSON(rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator) \
-    {                                                                                                                \
-        return aigc::JsonHelper::ReadBase(jsonValue, allocator, __VA_ARGS__);                                        \
+#define AIGC_JSON_HELPER_BASE(...)                                                      \
+    bool AIGC_BASE_CONVER_JSON_TO_OBJECT(rapidjson::Value &jsonValue)                   \
+    {                                                                                   \
+        std::string jsonStr = aigc::JsonHelper::StringFromJsonValue(jsonValue);         \
+        return aigc::JsonHelper::WriteBase(jsonStr, __VA_ARGS__);                       \
+    }                                                                                   \
+    bool AIGC_BASE_CONVER_OBJECT_TO_JSON(rapidjson::Value &jsonValue,                   \
+                                         rapidjson::Document::AllocatorType &allocator) \
+    {                                                                                   \
+        return aigc::JsonHelper::ReadBase(jsonValue, allocator, __VA_ARGS__);           \
     }
 
     class JsonHelper
@@ -180,12 +189,7 @@ namespace aigc
                 return true;
             //object or number conver to string
             else if (jsonValue.IsObject() || jsonValue.IsNumber())
-            {
-                rapidjson::StringBuffer buffer;
-                rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-                jsonValue.Accept(writer);
-                obj = std::string(buffer.GetString());
-            }
+                obj = StringFromJsonValue(jsonValue);
             else if (!jsonValue.IsString())
                 return false;
             else
@@ -257,49 +261,49 @@ namespace aigc
          *          double、string、vector、list、map<string,XX>
          *          
          ******************************************************/
-        static bool ObjectToJson(const int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetInt(obj);
             return true;
         }
 
-        static bool ObjectToJson(const unsigned int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(unsigned int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetUint(obj);
             return true;
         }
 
-        static bool ObjectToJson(const int64_t &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(int64_t &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetInt64(obj);
             return true;
         }
 
-        static bool ObjectToJson(const uint64_t &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(uint64_t &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetUint64(obj);
             return true;
         }
 
-        static bool ObjectToJson(const bool &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(bool &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetBool(obj);
             return true;
         }
 
-        static bool ObjectToJson(const float &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(float &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetFloat(obj);
             return true;
         }
 
-        static bool ObjectToJson(const double &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(double &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetDouble(obj);
             return true;
         }
 
-        static bool ObjectToJson(const std::string &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+        static bool ObjectToJson(std::string &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
         {
             jsonValue.SetString(obj.c_str(), obj.length(), allocator);
             return true;
@@ -541,16 +545,6 @@ namespace aigc
             }
         }
 
-        static std::string StringFromJsonValue(rapidjson::Value &jsonValue)
-        {
-            rapidjson::StringBuffer buffer;
-            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-
-            jsonValue.Accept(writer);
-            std::string ret = std::string(buffer.GetString());
-            return ret;
-        }
-
         static std::string GetJsonValueTypeName(rapidjson::Value &jsonValue)
         {
             rapidjson::Type type = jsonValue.GetType();
@@ -570,6 +564,17 @@ namespace aigc
             default:
                 return "string";
             }
+        }
+
+    public:
+        static std::string StringFromJsonValue(rapidjson::Value &jsonValue)
+        {
+            rapidjson::StringBuffer buffer;
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+            jsonValue.Accept(writer);
+            std::string ret = std::string(buffer.GetString());
+            return ret;
         }
 
     public:
@@ -669,10 +674,7 @@ namespace aigc
             if (!ObjectToJson(obj, root, allocator))
                 return false;
 
-            rapidjson::StringBuffer buffer;
-            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-            root.Accept(writer);
-            jsonStr = std::string(buffer.GetString());
+            jsonStr = StringFromJsonValue(root);
             return true;
         }
 
@@ -711,14 +713,10 @@ namespace aigc
             if (!jsonValue.HasMember(key))
                 return true;
 
-            if (!JsonToObject(arg, jsonValue[key]))
-            {
-                std::string jsonType = GetJsonValueTypeName(jsonValue[key]);
-                std::string logstr = "[JsonHelper] Conver member failed. jsonValue-" + jsonType + " --> " + names[index];
-                std::cout << logstr << std::endl;
-                return false;
-            }
-            return true;
+            bool check = JsonToObject(arg, jsonValue[key]);
+
+            PrintJsonToObject(jsonValue[key], names[index], check);
+            return check;
         }
 
         template <typename TYPE, typename... TYPES>
@@ -733,10 +731,11 @@ namespace aigc
         static bool ReadMembers(const std::vector<std::string> &names, int index, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator, TYPE &arg)
         {
             rapidjson::Value item;
-            if (!ObjectToJson(arg, item, allocator))
-            {
+            bool check = ObjectToJson(arg, item, allocator);
+
+            PrintObjectToJson(names[index], check);
+            if (!check)
                 return false;
-            }
 
             if (jsonValue.HasMember(names[index].c_str()))
             {
@@ -777,5 +776,29 @@ namespace aigc
             return aigc::JsonHelper::ObjectToJson(*arg, jsonValue, allocator);
         }
 
+    private:
+        /******************************************************
+         * 
+         * Print debug-message:
+         * 
+         ******************************************************/
+        static void PrintJsonToObject(rapidjson::Value &jsonValue, const std::string &name, bool success)
+        {
+#ifdef JSONHELPER_DEBUG
+            std::string jsonType = GetJsonValueTypeName(jsonValue);
+            std::string flag = success ? "[SUCCESS] " : "[ERROR] ";
+            std::string value = "jsonValue-" + jsonType + " --> " + name;
+            std::cout << flag + value << std::endl;
+#endif // DEBUG
+        }
+
+        static void PrintObjectToJson(const std::string &name, bool success)
+        {
+#ifdef JSONHELPER_DEBUG
+            std::string flag = success ? "[SUCCESS] " : "[ERROR] ";
+            std::string value = name + " --> jsonValue";
+            std::cout << flag + value << std::endl;
+#endif // DEBUG
+        }
     };
 } // namespace aigc
