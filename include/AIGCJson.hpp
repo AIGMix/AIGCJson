@@ -18,7 +18,6 @@
  * 
  */
 #pragma once
-
 #include <list>
 #include <map>
 #include <vector>
@@ -583,19 +582,19 @@ namespace aigc
          * External interface: 
          * 
          * a、Conver json string to class\struct:
-         *      1) T GetObject(string, bool*)
-         *      2) T GetObject(string, vector<string>, bool*)
+         *      1) T GetObjectByJson(string, bool*)
+         *      2) T GetObjectByJson(string, vector<string>, bool*)
          *      3) bool JsonToObject(string, vector<string>)
          * 
          * b、Conver class\struct to json string:
-         *      1) string GetJson(T, bool*)
+         *      1) string GetJsonByObject(T, bool*)
          *      2) bool ObjectToJson(string, T)
          * 
          * c、Get last error message: GetLastErrMessage
          * 
          ******************************************************/
         template <typename T>
-        static T GetObject(const std::string &jsonStr, bool *isSuccess = NULL)
+        static T GetObjectByJson(const std::string &jsonStr, bool *isSuccess = NULL)
         {
             T obj;
             bool check = JsonToObject(obj, jsonStr, {});
@@ -605,7 +604,7 @@ namespace aigc
         }
 
         template <typename T>
-        static T GetObject(const std::string &jsonStr, std::vector<std::string> keys, bool *isSuccess = NULL)
+        static T GetObjectByJson(const std::string &jsonStr, std::vector<std::string> keys, bool *isSuccess = NULL)
         {
             T obj;
             bool check = JsonToObject(obj, jsonStr, keys);
@@ -651,7 +650,7 @@ namespace aigc
         }
 
         template <typename T>
-        static std::string GetJson(T &obj, bool *isSuccess)
+        static std::string GetJsonByObject(T &obj, bool *isSuccess)
         {
             std::string ret = "";
             bool check = ObjectToJson(obj, ret);
