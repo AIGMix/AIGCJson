@@ -33,6 +33,7 @@ string sjson = R"({
 
 int main()
 {
-    Class my = JsonHelper::GetObjectByJson<Class>(sjson);
+    Class my;
+    JsonHelper::JsonToObject(my, sjson);
     return 0;
 }
