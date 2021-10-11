@@ -22,13 +22,15 @@ class Class
 {
 public:
     string name;
+    int test;
     std::list<Student> students;
     Popole master;
-    AIGC_JSON_HELPER(name, students, master) //成员注册
+    AIGC_JSON_HELPER(name, test, students, master) //成员注册
+    AIGC_JSON_HELPER_DEFAULT("test=123")
 };
 
 string sjson = R"({
-    "name" : "小一班", "master" : {"name" : "刘老师", "age" : 35}, "students" : [ {"name" : "张小明", "age" : 5, "grade" : 3, "depart" : "小学"}, {"name" : "张小红", "age" : 7, "grade" : 3, "depart" : "小学"} ]
+    "name": "yaronzz", "master" : {"name" : "刘老师", "age" : 35}, "students" : [ {"name" : "张小明", "age" : 5, "grade" : 3, "depart" : "小学"}, {"name" : "张小红", "age" : 7, "grade" : 3, "depart" : "小学"} ]
 })";
 
 int main()
@@ -37,3 +39,5 @@ int main()
     JsonHelper::JsonToObject(my, sjson);
     return 0;
 }
+
+

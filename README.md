@@ -8,6 +8,7 @@
 2. [x] Supports nested relationship
 3. [x] Only need two lines of code to convert
 4. [x] Support rename class-members
+5. [x] Support set default value 
 
 ## 📺 Use
 1. Download folder: include
