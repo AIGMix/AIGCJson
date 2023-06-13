@@ -2,14 +2,14 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "C/C++: g++.exe build active file",
+            "label": "windows",
             "command": "g++",
             "args": [
                 "-g",
-                "${file}",
+                "\"${file}\"",
                 "-o",
-                "${workspaceFolder}\\test",
-                "-I${workspaceFolder}\\include",
+                "\"${workspaceFolder}\\test\"",
+                "\"-I${workspaceFolder}\\include\"",
                 "-std=c++11"
             ],
             "options": {

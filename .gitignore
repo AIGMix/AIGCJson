@@ -5,3 +5,6 @@ main.cpp
 /x64
 /.vs
 /.vscode
+/lib
+/AIGCJson.sln
+/AIGCJson.vcxproj

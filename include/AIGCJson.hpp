@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2020 - 2021, Yaronzz(yaronhuang@foxmail.com). All rights reserved.
+ * Copyright (C) 2020 - 2023, Yaronzz(yaronhuang@foxmail.com). All rights reserved.
  * 
  * Licensed under the MIT License (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,6 +17,7 @@
  * @note:   Support type -->> int、uint、int64、uint64、bool、
  *                            float、double、string、vector、list、
  *                            map<string,XX>、unordered_map<string,XX>
+ * @version:1.0.2
  * 
  */
 #pragma once

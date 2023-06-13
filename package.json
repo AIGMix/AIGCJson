@@ -1,0 +1,13 @@
+{
+    "name": "AIGCJson",
+    "version": "1.0.2",
+    "license": "MIT",
+    "description": "Only need two lines of code to convert between class and json",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/AIGMix/AIGCJson.git"
+    },
+    "dependencies": {
+        "rapidjson": "git://github.com/Tencent/rapidjson.git"
+    }
+}
