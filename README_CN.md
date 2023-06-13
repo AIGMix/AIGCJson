@@ -4,7 +4,7 @@
 [AIGCJson](https://github.com/yaronzz/AIGCJson) 是一个用于类 | 结构体与Json相互转换的工具，简单易用，支持多种数据类型，支持嵌套关系，只有头文件，方便使用与移植。（基于[Tencent/rapidjson](https://github.com/Tencent/rapidjson)）
 
 ## 🍟 功能
-1. [x] 支持多种数据类型，包括int\uint、int64\uint64、float、double、bool、string、list、vector、map<string,T>、unordered_map<string,T>
+1. [x] 支持多种数据类型，包括int\uint、short\ushort、int64\uint64、float、double、bool、string、list、vector、map<string,T>、unordered_map<string,T>
 2. [x] 支持嵌套关系 
 3. [x] 两行代码即可完成类 | 结构体与Json的相互转换
 4. [x] 支持成员重命名，比方说json中的关键字是name,成员命名可写成Name或其他  

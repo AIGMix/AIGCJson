@@ -14,7 +14,7 @@
  * @author: yaronzz
  * @email:  yaronhuang@foxmail.com
  * @github: https://github.com/yaronzz
- * @note:   Support type -->> int、uint、int64、uint64、bool、
+ * @note:   Support type -->> int、uint、short, ushort, int64、uint64、bool、
  *                            float、double、string、vector、list、
  *                            map<string,XX>、unordered_map<string,XX>
  * @version:1.0.2
@@ -641,6 +641,28 @@ public:
         return true;
     }
 
+    bool JsonToObject(short &obj, rapidjson::Value &jsonValue)
+    {
+        if (!jsonValue.IsInt())
+        {
+            m_message = "json-value is " + GetJsonValueTypeName(jsonValue) + " but object is short.";
+            return false;
+        }
+        obj = jsonValue.GetInt();
+        return true;
+    }
+
+    bool JsonToObject(unsigned short &obj, rapidjson::Value &jsonValue)
+    {
+        if (!jsonValue.IsUint())
+        {
+            m_message = "json-value is " + GetJsonValueTypeName(jsonValue) + " but object is unsigned short.";
+            return false;
+        }
+        obj = jsonValue.GetUint();
+        return true;
+    }
+
     bool JsonToObject(int64_t &obj, rapidjson::Value &jsonValue)
     {
         if (!jsonValue.IsInt64())
@@ -821,6 +843,18 @@ public:
     bool ObjectToJson(unsigned int &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
     {
         jsonValue.SetUint(obj);
+        return true;
+    }
+
+    bool ObjectToJson(short &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+    {
+        jsonValue.SetInt((int)obj);
+        return true;
+    }
+
+    bool ObjectToJson(unsigned short &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+    {
+        jsonValue.SetUint((unsigned int)obj);
         return true;
     }
 

@@ -4,7 +4,7 @@
 [AIGCJson](https://github.com/yaronzz/AIGCJson) is a tool for converting between classes and Json，which supports multiple data types and nested relationship.Only header file.(Depend on[Tencent/rapidjson](https://github.com/Tencent/rapidjson)）
 
 ## 🍟 Support
-1. [x] Supports multiple data types, include int\uint、int64\uint64、float、double、bool、string、list、vector、map<string,T>、unordered_map<string,T>
+1. [x] Supports multiple data types, include int\uint、short\ushort、int64\uint64、float、double、bool、string、list、vector、map<string,T>、unordered_map<string,T>
 2. [x] Supports nested relationship
 3. [x] Only need two lines of code to convert
 4. [x] Support rename class-members
