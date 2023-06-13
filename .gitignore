@@ -1,2 +1,7 @@
 /test.exe
 main.cpp
+/AIGCJson.vcxproj.user
+/AIGCJson.vcxproj.filters
+/x64
+/.vs
+/.vscode

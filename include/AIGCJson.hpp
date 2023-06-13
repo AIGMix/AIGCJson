@@ -14,7 +14,9 @@
  * @author: yaronzz
  * @email:  yaronhuang@foxmail.com
  * @github: https://github.com/yaronzz
- * @note:   Support type -->> int、uint、int64、uint64、bool、float、double、string、vector、list、map<string,XX>
+ * @note:   Support type -->> int、uint、int64、uint64、bool、
+ *                            float、double、string、vector、list、
+ *                            map<string,XX>、unordered_map<string,XX>
  * 
  */
 #pragma once
@@ -23,6 +25,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <unordered_map>
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
@@ -777,6 +780,30 @@ public:
         return true;
     }
 
+    template <typename TYPE>
+    bool JsonToObject(std::unordered_map<std::string, TYPE> &obj, rapidjson::Value &jsonValue)
+    {
+        obj.clear();
+        if (!jsonValue.IsObject())
+        {
+            m_message = "json-value is " + GetJsonValueTypeName(jsonValue) + " but object is std::unordered_map<std::string, TYPE>.";
+            return false;
+        }
+
+        for (auto iter = jsonValue.MemberBegin(); iter != jsonValue.MemberEnd(); ++iter)
+        {
+            auto key = (iter->name).GetString();
+            auto &value = jsonValue[key];
+
+            TYPE item;
+            if (!JsonToObject(item, value))
+                return false;
+
+            obj.insert(std::pair<std::string, TYPE>(key, item));
+        }
+        return true;
+    }
+
 public:
     /******************************************************
          * Conver base-type : base-type to json string
@@ -868,6 +895,27 @@ public:
 
     template <typename TYPE>
     bool ObjectToJson(std::map<std::string, TYPE> &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
+    {
+        jsonValue.SetObject();
+        for (auto iter = obj.begin(); iter != obj.end(); ++iter)
+        {
+            auto key = iter->first;
+            TYPE value = iter->second;
+
+            rapidjson::Value jsonitem;
+            if (!ObjectToJson(value, jsonitem, allocator))
+                return false;
+
+            rapidjson::Value jsonkey;
+            jsonkey.SetString(key.c_str(), key.length(), allocator);
+
+            jsonValue.AddMember(jsonkey, jsonitem, allocator);
+        }
+        return true;
+    }
+
+    template <typename TYPE>
+    bool ObjectToJson(std::unordered_map<std::string, TYPE> &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
     {
         jsonValue.SetObject();
         for (auto iter = obj.begin(); iter != obj.end(); ++iter)

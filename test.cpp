@@ -24,13 +24,17 @@ public:
     string name;
     int test;
     std::list<Student> students;
+    std::unordered_map<std::string, int> property;
     Popole master;
-    AIGC_JSON_HELPER(name, test, students, master) //成员注册
+    AIGC_JSON_HELPER(name, test, students, master, property) //成员注册
     AIGC_JSON_HELPER_DEFAULT("test=123")
 };
 
 string sjson = R"({
-    "name": "yaronzz", "master" : {"name" : "刘老师", "age" : 35}, "students" : [ {"name" : "张小明", "age" : 5, "grade" : 3, "depart" : "小学"}, {"name" : "张小红", "age" : 7, "grade" : 3, "depart" : "小学"} ]
+    "name": "yaronzz", "master" : {"name" : "liu", "age" : 35}, 
+    "students" : [  {"name" : "zhang", "age" : 5, "grade" : 3, "depart" : "primary school"}, 
+                    {"name" : "chen", "age" : 7, "grade" : 3, "depart" : "primary school"} ],
+    "property" : {"grade" : 1, "num" : 33}
 })";
 
 int main()
