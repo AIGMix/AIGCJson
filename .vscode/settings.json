@@ -5,9 +5,19 @@
         "*.ls": "lua",
         "*.prl": "ini",
         "*.pri": "ini",
+        "*.01": "log",
+        "*.h": "cpp",
+        "*.md": "markdown",
+        "*.py": "python",
+        "*.qss": "css",
+        "*.locale": "json",
+        "*.cjson": "jsonc",
+        "*.wxss": "css",
+        "*.wxs": "javascript",
         "*log*": "log",
         "*.cpp": "cpp",
         "xstring": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "type_traits": "cpp"
     }
 }
