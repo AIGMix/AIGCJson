@@ -17,7 +17,7 @@
  * @note:   Support type -->> int、uint、short, ushort, int64、uint64、bool、
  *                            float、double、string、vector、list、set、unordered_set
  *                            map<string,XX>、unordered_map<string,XX>
- * @version:1.0.2
+ * @version:1.0.3
  * 
  */
 #pragma once
@@ -975,21 +975,37 @@ public:
     template <typename TYPE>
     bool ObjectToJson(std::set<TYPE> &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
     {
-        // As std::set use keys to index, std::set iterators are const iterators, dereferencing will produce const value
-        // which means set<string> will produce TYPE = const string
-        // C++ template specialization treat (string &) and (const string &) as different types of parameters
-        // thus, const string will fall into the default ObjectToJson, leading to static_cast error
-        // To avoid this error, we convert set to vector, which produce non-const iterators
-        std::vector<TYPE> vec(obj.begin(), obj.end());
-        return ObjectToJson(vec, jsonValue, allocator);
+        rapidjson::Value array(rapidjson::Type::kArrayType);
+        for (auto i = obj.begin(); i != obj.end(); i++)
+        {
+            rapidjson::Value item;
+            TYPE value = *i;
+            if (!ObjectToJson(value, item, allocator))
+                return false;
+
+            array.PushBack(item, allocator);
+        }
+
+        jsonValue = array;
+        return true;
     }
     
     template <typename TYPE>
     bool ObjectToJson(std::unordered_set<TYPE> &obj, rapidjson::Value &jsonValue, rapidjson::Document::AllocatorType &allocator)
     {
-        // Same as std::set, convert unordered_set to vector to avoid compilation error
-        std::vector<TYPE> vec(obj.begin(), obj.end());
-        return ObjectToJson(vec, jsonValue, allocator);
+        rapidjson::Value array(rapidjson::Type::kArrayType);
+        for (auto i = obj.begin(); i != obj.end(); i++)
+        {
+            rapidjson::Value item;
+            TYPE value = *i;
+            if (!ObjectToJson(value, item, allocator))
+                return false;
+
+            array.PushBack(item, allocator);
+        }
+
+        jsonValue = array;
+        return true;
     }
 
     template <typename TYPE>
